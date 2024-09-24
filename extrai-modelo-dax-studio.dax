@@ -204,5 +204,4 @@ EVALUATE __colunasResultado ORDER BY [Tabela] ASC, [Coluna] ASC
 EVALUATE __relacionamentosResultado ORDER BY [DePara] ASC
 EVALUATE __gruposCalculosResultado ORDER BY [Precedencia] ASC, [Ordinal] ASC
 EVALUATE __parametrosResultado 
-EVALUATE __particoesResultado ORDER BY [TabelaID] ASC
-EVALUATE __dependencias 
+EVALUATE __particoesResultado ORDER BY [TabelaID] ASC 
