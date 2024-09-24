@@ -1,4 +1,4 @@
-# documentacao-daxstudio
+# Documentação com DAX Studio
 Este script extrai o conteúdo do modelo do PBIX incluindo:
 
 - Tabelas
