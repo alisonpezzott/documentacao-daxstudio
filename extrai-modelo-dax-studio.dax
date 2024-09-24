@@ -1,50 +1,52 @@
 DEFINE
     
-    VAR __tabelas = INFO.TABLES ()
+VAR __tabelas = INFO.TABLES()
+
+VAR __colunas =
+	FILTER(
+	    INFO.COLUMNS(),
+	    NOT CONTAINSSTRING(
+		[ExplicitName],
+		"RowNumber"
+	    )
+	)
+
+VAR __medidas = INFO.MEASURES()
+
+VAR __formatos = INFO.FORMATSTRINGDEFINITIONS()
+
+VAR __relacionamentos = INFO.RELATIONSHIPS()
+
+VAR __gruposCalculos = INFO.CALCULATIONGROUPS()
+
+VAR __itensCalculos = INFO.CALCULATIONITEMS()
+
+VAR __dependencias = INFO.CALCDEPENDENCY()
     
-    VAR __colunas =
-        FILTER (
-            INFO.COLUMNS (),
-            NOT CONTAINSSTRING (
-                [ExplicitName],
-                "RowNumber"
-            )
-        )
-        
-    VAR __medidas = INFO.MEASURES ()
-    
-    VAR __formatos = INFO.FORMATSTRINGDEFINITIONS ()
-    
-    VAR __relacionamentos = INFO.RELATIONSHIPS ()
-    
-    VAR __gruposCalculos = INFO.CALCULATIONGROUPS ()
-    
-    VAR __itensCalculos = INFO.CALCULATIONITEMS ()
-    
-    VAR __tabelaFonteMedidas =
-        ADDCOLUMNS (
-            __medidas,
-            "Tabela",
-                VAR __TabelaID = [TableID]
-                RETURN
-                    MAXX (
-                        FILTER (
-                            __tabelas,
-                            [ID] = __TabelaID
-                        ),
-                        [Name]
-                    ),
-            "Formato",
-                VAR __MedidaID = [ID]
-                RETURN
-                    MAXX (
-                        FILTER (
-                            __formatos,
-                            [ObjectID] = __MedidaID
-                        ),
-                        [Expression]
-                    )
-        )
+VAR __tabelaFonteMedidas =
+	ADDCOLUMNS (
+	    __medidas,
+	    "Tabela",
+		VAR __TabelaID = [TableID]
+		RETURN
+		    MAXX (
+			FILTER (
+			    __tabelas,
+			    [ID] = __TabelaID
+			),
+			[Name]
+		    ),
+	    "Formato",
+		VAR __MedidaID = [ID]
+		RETURN
+		    MAXX (
+			FILTER (
+			    __formatos,
+			    [ObjectID] = __MedidaID
+			),
+			[Expression]
+		    )
+	)
         
     VAR __resultMedidas =
         SELECTCOLUMNS (
@@ -321,7 +323,27 @@ DEFINE
             "ColunaGrupoCalculo", [ColunaGrupoCalculo],
             "ColunaOrdinal", [ColunaOrdinal]
         )
-        
+
+VAR __parametros = 
+	FILTER(
+		__dependencias,
+		[REFERENCED_OBJECT_TYPE] = "M_EXPRESSION" &&
+		CONTAINSSTRING([REFERENCED_EXPRESSION], "IsParameterQuery")
+	)
+	
+VAR __parametrosFiltrados =
+	SUMMARIZE(
+		__parametros,
+		[REFERENCED_OBJECT],
+		[REFERENCED_EXPRESSION]
+	 )
+
+VAR __resultadoParametros =
+	SELECTCOLUMNS(
+		__parametrosFiltrados,
+		 "Nome", [REFERENCED_OBJECT],
+		 "Expressao", [REFERENCED_EXPRESSION]
+	 )        
 
 EVALUATE
 	__resultMedidas
@@ -344,3 +366,6 @@ EVALUATE
 ORDER BY
     [Precedencia] ASC,
     [Ordinal] ASC
+
+EVALUATE 
+	__resultadoParametros
